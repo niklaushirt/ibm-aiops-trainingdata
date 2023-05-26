@@ -1,0 +1,8 @@
+t_uid,group_name,metric_name
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,Latency,Latency
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,System,CPU1Temperature
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,MemoryUsage,MemoryUsageMax
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,MemoryUsage,MemoryUsageMean
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,MemoryUsage,MemoryUsagePercent
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,TransactionsPerSecond,TransactionsPerSecond
+cfd95b7e-3bc7-4006-a4a8-a73a79c71255,PodRestarts,PodRestarts
