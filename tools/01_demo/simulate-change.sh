@@ -71,7 +71,7 @@ oc project $WAIOPS_NAMESPACE  >/tmp/demo.log 2>&1  || true
 echo " "
 
 echo "     📥 Get Kafka Topics"
-export KAFKA_TOPIC_CR=$(oc get kafkatopics -n $WAIOPS_NAMESPACE | grep cp4waiops-cartridge.changerequest| awk '{print $1;}')
+export KAFKA_TOPIC_CR=$(oc get kafkatopics -n $WAIOPS_NAMESPACE | grep ibm-aiops-cartridge.changerequest| awk '{print $1;}')
 
 echo " "
 echo "     🔐 Get Kafka Password"

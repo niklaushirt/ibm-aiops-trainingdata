@@ -1,4 +1,4 @@
-oc exec -n cp4waiops -it aiops-topology-cassandra-0 -- bash
+oc exec -n ibm-aiops -it aiops-topology-cassandra-0 -- bash
 
 
 cqlsh --ssl -u ${CASSANDRA_USER} -p ${CASSANDRA_PASS} --request-timeout=3600

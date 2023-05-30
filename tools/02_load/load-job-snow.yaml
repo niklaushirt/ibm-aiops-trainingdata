@@ -3,14 +3,14 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: load-snow-indexes
-  namespace: cp4waiops-installation
+  namespace: ibm-aiops-installation
 spec:
   serviceAccountName: demo-admin
   template:
     spec:
       containers:
         - name: load
-          image: docker.io/niklaushirt/cp4waiops-tools:2.0
+          image: docker.io/niklaushirt/ibm-aiops-tools:2.0
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -33,13 +33,13 @@ spec:
               echo "   ------------------------------------------------------------------------------------------------------------------------------"
               echo "    📥 Downloading service now training files"
               echo "   ------------------------------------------------------------------------------------------------------------------------------"
-              export AWX_REPO=https://github.com/niklaushirt/cp4waiops-trainingdata.git
+              export AWX_REPO=https://github.com/niklaushirt/ibm-aiops-trainingdata.git
               git clone $AWX_REPO
 
               echo "   ------------------------------------------------------------------------------------------------------------------------------"
               echo "    🚀 Starting Data Load"
               echo "   ------------------------------------------------------------------------------------------------------------------------------"
-              cd cp4waiops-trainingdata
+              cd ibm-aiops-trainingdata
               git log|head -n 17
               cd -
               echo ""
@@ -47,7 +47,7 @@ spec:
               echo "------------------------------------------------------------------------------------------------------------------------------"
               echo "This Repo includes those latestet Commits"
               echo "------------------------------------------------------------------------------------------------------------------------------"
-              cd cp4waiops-trainingdata
+              cd ibm-aiops-trainingdata
               git log|head -n 17
               cd -
               echo ""
