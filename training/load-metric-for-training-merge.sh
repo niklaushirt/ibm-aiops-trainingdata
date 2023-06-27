@@ -113,7 +113,7 @@ echo "  "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra table tararam.md_metric_resource"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u \$CASSANDRA_USER -p \$CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/tmp/tararam.md_metric_resource.csv' with header=true;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/tmp/tararam.md_metric_resource.csv' with header=true;\""
 echo "  "
 echo "  "
 
@@ -123,7 +123,7 @@ do
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     echo "   🚚 Load data values dump into Cassandra table tararam.dt_metric_value from $actFile"
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-        oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u \$CASSANDRA_USER -p \$CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/tmp/"$actFile"' with header=true;\""
+        oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/tmp/"$actFile"' with header=true;\""
     echo "  "
     echo "  "
 
@@ -132,8 +132,8 @@ done
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u \$CASSANDRA_USER -p \$CASSANDRA_PASS -e \"SELECT COUNT(*) FROM tararam.dt_metric_value;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u \$CASSANDRA_USER -p \$CASSANDRA_PASS -e \"SELECT * FROM tararam.md_metric_resource;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM tararam.dt_metric_value;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_metric_resource;\""
 
 
 echo "*****************************************************************************************************************************"
