@@ -79,6 +79,17 @@ echo "     "
 #--------------------------------------------------------------------------------------------------------------------------------------------	
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "   🔎  Get Cassandra Authentication"	
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+export CASSANDRA_PASS=$(oc get secret aiops-topology-cassandra-auth-secret -n $WAIOPS_NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
+export CASSANDRA_USER=$(oc get secret aiops-topology-cassandra-auth-secret -n $WAIOPS_NAMESPACE -o jsonpath='{.data.username}' | base64 -d)
+
+echo "CASSANDRA_USER:$CASSANDRA_USER"
+echo "CASSANDRA_PASS:$CASSANDRA_PASS"
+
+
+
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🗄️  Indexes to be loaded from ./training-data/$VERSION/$INDEX_TYPE/"	
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "dt_metric_value"	 | sed 's/^/          /'
