@@ -3,21 +3,21 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: load-snow-indexes
-  namespace: ibm-aiops-installation
+  namespace: ibm-aiops-installer
 spec:
   serviceAccountName: demo-admin
   template:
     spec:
       containers:
         - name: load
-          image: docker.io/niklaushirt/ibm-aiops-tools:2.0
+          image: quay.io/niklaushirt/ibm-aiops-tools:2.0
           imagePullPolicy: IfNotPresent
           resources:
             requests:
               memory: "64Mi"
               cpu: "150m"
             limits:
-              memory: "1256Mi"
+              memory: "2024Mi"
               cpu: "1200m"
           command:
             - /bin/sh
@@ -40,18 +40,15 @@ spec:
               echo "    🚀 Starting Data Load"
               echo "   ------------------------------------------------------------------------------------------------------------------------------"
               cd ibm-aiops-trainingdata
-              git log|head -n 17
-              cd -
-              echo ""
-              echo ""
               echo "------------------------------------------------------------------------------------------------------------------------------"
               echo "This Repo includes those latestet Commits"
               echo "------------------------------------------------------------------------------------------------------------------------------"
-              cd ibm-aiops-trainingdata
               git log|head -n 17
-              cd -
               echo ""
               echo ""
+
+              ./training/load-snow-for-training.sh
+
               echo "*****************************************************************************************************************************"
               echo " ✅ DONE"
               echo "*****************************************************************************************************************************"
@@ -59,9 +56,9 @@ spec:
 
           env:
             - name: INDEX_OVERWRITE
-              value : "false"
+              value : "true"
             - name: VERSION
-              value : "3.3"
+              value : "latest"
       restartPolicy: Never
 
   backoffLimit: 4
