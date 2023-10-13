@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# LOAD METRICS DIRECTLY INTO CASSANDRA
+# LOAD EVENTS DIRECTLY INTO CASSANDRA
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ echo " -------------------------------------------------------------------------
 echo "  "
 echo "  "
 
-export INDEX_TYPE=metrics
+export INDEX_TYPE=events
 
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -73,11 +73,11 @@ echo "CASSANDRA_PASS:$CASSANDRA_PASS"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎  Check for Training Files in ./training-data/$VERSION/$INDEX_TYPE/"	
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export MERIC_FILES=$(ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "dt_metric_value")	
+export MERIC_FILES=$(ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "alerts")	
 if [[ $MERIC_FILES == "" ]] ;	
 then	
-      echo "           ❗ No Metric Dump files found"	
-      echo "           ❗    No Metric Dump files found to ingest in path ./training-data/$VERSION/$INDEX_TYPE/"	
+      echo "           ❗ No Events Dump files found"	
+      echo "           ❗    No Events Dump files found to ingest in path ./training-data/$VERSION/$INDEX_TYPE/"	
       echo "           ❗    Please place them in the directory."	
       echo "           ❌ Aborting..."	
       exit 1	
@@ -94,7 +94,7 @@ echo "     "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🗄️  Indexes to be loaded from ./training-data/$VERSION/$INDEX_TYPE/"	
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "dt_metric_value"	 | sed 's/^/          /'
+ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "aiops"	 | sed 's/^/          /'
 echo "       "	
 echo "       "	
 
@@ -114,49 +114,27 @@ echo "  "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🧻 Empty Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.dt_metric_value;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_metric_resource;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_resource;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_group;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE aiops.alerts;\""
 echo "  "
 echo "  "
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM tararam.dt_metric_value;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_metric_resource;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_resource;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_group;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/tmp/tararam.md_metric_resource.csv' with header=true;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_resource from '/tmp/tararam.md_resource.csv' with header=true;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_group from '/tmp/tararam.md_group.csv' with header=true;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/aiops.alerts.csv' with header=true;\""
 echo "  "
 echo "  "
 
-
-for actFile in $(ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "dt_metric_value");
-do
-    echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    echo "   🚚 Load data values dump into Cassandra table tararam.dt_metric_value from $actFile"
-    echo "   ------------------------------------------------------------------------------------------------------------------------------"
-        oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/tmp/"$actFile"' with header=true;\""
-    echo "  "
-    echo "  "
-
-done
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM tararam.dt_metric_value;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_metric_resource;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_resource;\""
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT * FROM tararam.md_group;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
 
 
 echo "*****************************************************************************************************************************"
