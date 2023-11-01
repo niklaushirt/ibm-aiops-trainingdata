@@ -23,7 +23,7 @@ echo "**************************************************************************
 
 
 
-export LOG_TYPE=elk   # humio, elk, splunk, ...
+export LOG_TYPE=lags   # humio, elk, splunk, ...
 export INDEX_TYPE=lags
 
 cd /ibm-aiops-trainingdata
