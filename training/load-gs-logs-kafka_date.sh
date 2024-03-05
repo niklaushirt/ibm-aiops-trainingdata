@@ -87,6 +87,7 @@ echo ""
 echo ""
 
 
+export my_date=$(date "+%Y-%m-%dT")
 
 
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -181,6 +182,10 @@ ACT_COUNT=0
 for FILE in /tmp/training-files-logs/*; do 
     if [[ $FILE =~ "x"  ]]; then
             ACT_COUNT=`expr $ACT_COUNT + 1`
+            
+            sed -i -e "s/2023-11-08T/$my_date/g" $FILE
+            tail $FILE
+
             echo "          Injecting file ($ACT_COUNT/$(($NUM_FILES-1))) - $FILE"
             #echo "                 ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=token -X sasl.password=$KAFKA_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE   "
             kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
