@@ -23,7 +23,7 @@ echo "**************************************************************************
 
 
 
-export LOG_TYPE=lags   # humio, elk, splunk, ...
+export LOG_TYPE=lags   
 export INDEX_TYPE=lags
 
 cd /ibm-aiops-trainingdata
@@ -90,6 +90,23 @@ echo ""
 export my_date=$(date "+%Y-%m-%dT")
 
 
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+if [ "${OS}" == "darwin" ]; then
+      # Suppose we're on Mac
+      export my_hour1=$(date -v-2H "+%H")
+      export my_hour2=$(date -v-1H "+%H")
+      export my_hour3=$(date "+%H")
+      export my_hour4=$(date -v+1H "+%H")
+else
+      export my_hour1=$(date -d '2 hours ago' "+%H")
+      export my_hour2=$(date -d '1 hour ago' "+%H")
+      export my_hour3=$(date "+%H")
+      export my_hour4=$(date -d '1 hour' "+%H")
+fi
+
+
+
+
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "     🔎  Parameters for Incident Simulation for $APP_NAME"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -105,6 +122,9 @@ echo "     "
 echo "       📂 Directory for Logs          : $WORKING_DIR_LOGS"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "   "
+echo "       📝 Date                        : $my_date"
+echo "       📝 Hour                        : $my_hour1"
+
 echo "   "
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "     🗄️  Log Files to be loaded"
@@ -183,7 +203,10 @@ for FILE in /tmp/training-files-logs/*; do
     if [[ $FILE =~ "x"  ]]; then
             ACT_COUNT=`expr $ACT_COUNT + 1`
             
-            sed -i -e "s/2023-11-08T/$my_date/g" $FILE
+            sed -i -e "s/2023-11-08T07/$my_date$my_hour1/g" $FILE
+            sed -i -e "s/2023-11-08T08/$my_date$my_hour2/g" $FILE
+            sed -i -e "s/2023-11-08T09/$my_date$my_hour3/g" $FILE
+            sed -i -e "s/2023-11-08T10/$my_date$my_hour4/g" $FILE
             tail $FILE
 
             echo "          Injecting file ($ACT_COUNT/$(($NUM_FILES-1))) - $FILE"
