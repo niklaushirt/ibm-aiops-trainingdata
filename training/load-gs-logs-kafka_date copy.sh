@@ -93,21 +93,15 @@ export my_date=$(date "+%Y-%m-%dT")
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 if [ "${OS}" == "darwin" ]; then
       # Suppose we're on Mac
-      export my_date1=$(date -v-3d "+%Y-%m-%d")
-      export my_date2=$(date -v-2d "+%Y-%m-%d")
-      export my_date3=$(date -v-1d "+%Y-%m-%d")
-      export my_date4=$(date "+%Y-%m-%d")
-      export my_date5=$(date -v+1d "+%Y-%m-%d")
-      export my_date6=$(date -v+2d "+%Y-%m-%d")
-      export my_date7=$(date -v+3d "+%Y-%m-%d")
+      export my_hour1=$(date -v-2H "+%H")
+      export my_hour2=$(date -v-1H "+%H")
+      export my_hour3=$(date "+%H")
+      export my_hour4=$(date -v+1H "+%H")
 else
-      export my_date1=$(date -d '3 days ago' "+%Y-%m-%d")
-      export my_date2=$(date -d '2 days ago' "+%Y-%m-%d")
-      export my_date3=$(date -d '1 days ago' "+%Y-%m-%d")
-      export my_date4=$(date "+%Y-%m-%d")
-      export my_date5=$(date -d '1 days' "+%Y-%m-%d")
-      export my_date6=$(date -d '2 days' "+%Y-%m-%d")
-      export my_date7=$(date -d '3 days' "+%Y-%m-%d")
+      export my_hour1=$(date -d '2 hours ago' "+%H")
+      export my_hour2=$(date -d '1 hour ago' "+%H")
+      export my_hour3=$(date "+%H")
+      export my_hour4=$(date -d '1 hour' "+%H")
 fi
 
 
@@ -129,7 +123,7 @@ echo "       📂 Directory for Logs          : $WORKING_DIR_LOGS"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "   "
 echo "       📝 Date                        : $my_date"
-echo "       📝 Hour                        : $my_date1"
+echo "       📝 Hour                        : $my_hour1"
 
 echo "   "
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -208,17 +202,11 @@ ACT_COUNT=0
 for FILE in /tmp/training-files-logs/*; do 
     if [[ $FILE =~ "x"  ]]; then
             ACT_COUNT=`expr $ACT_COUNT + 1`
-
-
-            sed -i -e "s/2024-03-09/$my_date1/g" $FILE
-            sed -i -e "s/2024-03-10/$my_date2/g" $FILE
-            sed -i -e "s/2024-03-11/$my_date3/g" $FILE
-            sed -i -e "s/2024-03-12/$my_date4/g" $FILE
-            sed -i -e "s/2024-03-13/$my_date5/g" $FILE
-            sed -i -e "s/2024-03-14/$my_date6/g" $FILE
-            sed -i -e "s/2024-03-15/$my_date7/g" $FILE
-
-
+            
+            sed -i -e "s/2023-11-08T07/$my_date$my_hour1/g" $FILE
+            sed -i -e "s/2023-11-08T08/$my_date$my_hour2/g" $FILE
+            sed -i -e "s/2023-11-08T09/$my_date$my_hour3/g" $FILE
+            sed -i -e "s/2023-11-08T10/$my_date$my_hour4/g" $FILE
             tail $FILE
 
             echo "          Injecting file ($ACT_COUNT/$(($NUM_FILES-1))) - $FILE"
