@@ -214,14 +214,13 @@ for FILE in /tmp/training-files-logs/*; do
     if [[ $FILE =~ "x"  ]]; then
             ACT_COUNT=`expr $ACT_COUNT + 1`
 
-
-            sed -i -e "s/2024-03-09/$my_date1/g" $FILE
-            sed -i -e "s/2024-03-10/$my_date2/g" $FILE
-            sed -i -e "s/2024-03-11/$my_date3/g" $FILE
-            sed -i -e "s/2024-03-12/$my_date4/g" $FILE
-            sed -i -e "s/2024-03-13/$my_date5/g" $FILE
-            sed -i -e "s/2024-03-14/$my_date6/g" $FILE
             sed -i -e "s/2024-03-15/$my_date7/g" $FILE
+            sed -i -e "s/2024-03-14/$my_date6/g" $FILE
+            sed -i -e "s/2024-03-13/$my_date5/g" $FILE
+            sed -i -e "s/2024-03-12/$my_date4/g" $FILE
+            sed -i -e "s/2024-03-11/$my_date3/g" $FILE
+            sed -i -e "s/2024-03-10/$my_date2/g" $FILE
+            sed -i -e "s/2024-03-09/$my_date1/g" $FILE
 
 
             tail $FILE
