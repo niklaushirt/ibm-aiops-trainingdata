@@ -90,27 +90,6 @@ echo ""
 export my_date=$(date "+%Y-%m-%dT")
 
 
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-if [ "${OS}" == "darwin" ]; then
-      # Suppose we're on Mac
-      export my_date1=$(date -v-6d "+%Y-%m-%d")
-      export my_date2=$(date -v-5d "+%Y-%m-%d")
-      export my_date3=$(date -v-4d "+%Y-%m-%d")
-      export my_date4=$(date -v-3d "+%Y-%m-%d")
-      export my_date5=$(date -v-2d "+%Y-%m-%d")
-      export my_date6=$(date -v-1d "+%Y-%m-%d")
-      export my_date7=$(date "+%Y-%m-%d")
-else
-      export my_date1=$(date -d '6 days ago' "+%Y-%m-%d")
-      export my_date2=$(date -d '5 days ago' "+%Y-%m-%d")
-      export my_date3=$(date -d '4 days ago' "+%Y-%m-%d")
-      export my_date4=$(date -d '3 days ago' "+%Y-%m-%d")
-      export my_date5=$(date -d '2 days ago' "+%Y-%m-%d")
-      export my_date6=$(date -d '1 days ago' "+%Y-%m-%d")
-      export my_date7=$(date "+%Y-%m-%d")
-fi
-
-
 
 
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -128,13 +107,6 @@ echo "     "
 echo "       📂 Directory for Logs          : $WORKING_DIR_LOGS"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "   "
-echo "       📝 Date                        : $my_date1"
-echo "       📝 Date                        : $my_date2"
-echo "       📝 Date                        : $my_date3"
-echo "       📝 Date                        : $my_date4"
-echo "       📝 Date                        : $my_date5"
-echo "       📝 Date                        : $my_date6"
-echo "       📝 Date                        : $my_date7"
 
 echo "   "
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -213,7 +185,7 @@ echo "         -----------------------------------------------------------------
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 DAYS=0
 
-while [ $DAYS -lt 11 ];
+while [ $DAYS -lt 7 ];
 do
     if [ "${OS}" == "darwin" ]; then
         # Suppose we're on Mac
@@ -224,7 +196,7 @@ do
 
 
     echo $my_date
-    echo "          Injecting files for date $my_date ($DAYS/10)"
+    echo "          Injecting files for date $my_date ($DAYS/7)"
     
     ACT_COUNT=0
     for FILE in /tmp/training-files-logs/*; do 
