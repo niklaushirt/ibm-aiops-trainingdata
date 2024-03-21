@@ -169,6 +169,7 @@ do
     echo "        🛠️   Copy $actFile to /tmp/training-files-logs/"
 
     cp $WORKING_DIR_LOGS/$actFile /tmp/training-files-logs/$actFile
+    rm -f -r /tmp/training-files-logs/* 
 
     cd /tmp/training-files-logs/
 
@@ -209,7 +210,7 @@ rm -f -r /tmp/training-files-logs/__MACOSX
                 ACT_COUNT=`expr $ACT_COUNT + 1`
 
                 sed -i -e "s/@MY_DATE/$my_date/g" $FILE
-                cat $FILE
+                #cat $FILE
                 #tail $FILE
                 kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
         fi
