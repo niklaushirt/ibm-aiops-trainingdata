@@ -210,11 +210,19 @@ echo "          🌏  Injecting Log Data"
 echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
 
-
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 DAYS=0
+
 while [ $DAYS -lt 11 ];
 do
-    export my_date=$(date -v-${DAYS}d "+%Y-%m-%d")
+    if [ "${OS}" == "darwin" ]; then
+        # Suppose we're on Mac
+        export my_date=$(date -v-${DAYS}d "+%Y-%m-%d")
+    else
+        export my_date=$(date -d ${DAYS}' days ago' "+%Y-%m-%d")
+    fi
+
+
     echo $my_date
     echo "          Injecting files for date $my_date ($DAYS/10)"
     
