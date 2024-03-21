@@ -232,7 +232,9 @@ do
                 ACT_COUNT=`expr $ACT_COUNT + 1`
 
                 sed -i -e "s/@MY_DATE/$my_date/g" $FILE
-                kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
+
+                tail $FILE
+                #kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
         fi
     done
     ((DAYS++)) 
