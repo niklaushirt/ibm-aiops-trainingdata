@@ -209,30 +209,25 @@ echo "         -----------------------------------------------------------------
 echo "          🌏  Injecting Log Data" 
 echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
-ACT_COUNT=0
-for FILE in /tmp/training-files-logs/*; do 
-    if [[ $FILE =~ "x"  ]]; then
-            ACT_COUNT=`expr $ACT_COUNT + 1`
-
-            sed -i -e "s/2024-03-15/$my_date7/g" $FILE
-            sed -i -e "s/2024-03-14/$my_date6/g" $FILE
-            sed -i -e "s/2024-03-13/$my_date5/g" $FILE
-            sed -i -e "s/2024-03-12/$my_date4/g" $FILE
-            sed -i -e "s/2024-03-11/$my_date3/g" $FILE
-            sed -i -e "s/2024-03-10/$my_date2/g" $FILE
-            sed -i -e "s/2024-03-09/$my_date1/g" $FILE
 
 
-            tail $FILE
+DAYS=0
+while [ $DAYS -lt 11 ];
+do
+    export my_date=$(date -v-${DAYS}d "+%Y-%m-%d")
+    echo $my_date
+    echo "          Injecting files for date $my_date ($DAYS/10)"
+    
+    ACT_COUNT=0
+    for FILE in /tmp/training-files-logs/*; do 
+        if [[ $FILE =~ "x"  ]]; then
+                ACT_COUNT=`expr $ACT_COUNT + 1`
 
-            echo "          Injecting file ($ACT_COUNT/$(($NUM_FILES-1))) - $FILE"
-            #echo "                 ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=token -X sasl.password=$KAFKA_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE   "
-            kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
-            echo "          ✅ OK"
-            echo " "
-    fi
+                sed -i -e "s/@MY_DATE/$my_date/g" $FILE
+                kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
+        fi
+    done
+    ((DAYS++)) 
+    
 done
-
-
-
 
