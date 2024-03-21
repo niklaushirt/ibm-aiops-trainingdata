@@ -146,49 +146,47 @@ DAYS=0
 while [ $DAYS -lt 7 ];
 do
 
-
-
-for actFile in $(ls -1 $WORKING_DIR_LOGS | grep "zip"); 
-do 
-
-#------------------------------------------------------------------------------------------------------------------------------------
-#  Prepare the Data
-#------------------------------------------------------------------------------------------------------------------------------------
-    echo "   "
-    echo "   "
-    echo "   "
-    echo "   "
-    echo "      -------------------------------------------------------------------------------------------------------------------------------------"
-    echo "        🛠️   Preparing Data for file $actFile"
-    echo "      -------------------------------------------------------------------------------------------------------------------------------------"
+    for actFile in $(ls -1 $WORKING_DIR_LOGS | grep "zip"); 
+    do 
 
     #------------------------------------------------------------------------------------------------------------------------------------
-    #  Create file and structure in /tmp
+    #  Prepare the Data
     #------------------------------------------------------------------------------------------------------------------------------------
-    echo "      -------------------------------------------------------------------------------------------------------------------------------------"
-    echo "        🛠️   Copy $actFile to /tmp/training-files-logs/"
+        echo "   "
+        echo "   "
+        echo "   "
+        echo "   "
+        echo "      -------------------------------------------------------------------------------------------------------------------------------------"
+        echo "        🛠️   Preparing Data for file $actFile"
+        echo "      -------------------------------------------------------------------------------------------------------------------------------------"
 
-    cp $WORKING_DIR_LOGS/$actFile /tmp/training-files-logs/$actFile
-    rm -f -r /tmp/training-files-logs/* 
+        #------------------------------------------------------------------------------------------------------------------------------------
+        #  Create file and structure in /tmp
+        #------------------------------------------------------------------------------------------------------------------------------------
+        echo "      -------------------------------------------------------------------------------------------------------------------------------------"
+        echo "        🛠️   Copy $actFile to /tmp/training-files-logs/"
 
-    cd /tmp/training-files-logs/
+        rm -f -r /tmp/training-files-logs/* 
+        cp $WORKING_DIR_LOGS/$actFile /tmp/training-files-logs/$actFile
 
-    unzip /tmp/training-files-logs/$actFile
+        cd /tmp/training-files-logs/
+
+        unzip /tmp/training-files-logs/$actFile
 
 
 
 
-    export NUM_FILES=$(ls | wc -l)
-    ls -1 /tmp/training-files-logs/x*| sed 's/^/             /'
-    #cat xaa
-    cd -  >/tmp/demo.log 2>&1 
-    echo " "
-    echo "          ✅ OK - File Count: $NUM_FILES"
+        export NUM_FILES=$(ls | wc -l)
+        ls -1 /tmp/training-files-logs/x*| sed 's/^/             /'
+        #cat xaa
+        cd -  >/tmp/demo.log 2>&1 
+        echo " "
+        echo "          ✅ OK - File Count: $NUM_FILES"
 
-done
+    done
 
-rm -f -r /tmp/training-files-logs/*.zip 
-rm -f -r /tmp/training-files-logs/__MACOSX
+    rm -f -r /tmp/training-files-logs/*.zip 
+    rm -f -r /tmp/training-files-logs/__MACOSX
 
 
 
