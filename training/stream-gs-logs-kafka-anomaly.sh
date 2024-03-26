@@ -142,6 +142,7 @@ echo "          🌏  Injecting Log Data"
 echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
 ITERATIONS_COUNT=0
+((ITERATIONS_COUNT++))
 while [ ITERATIONS_COUNT -lt ITERATIONS_MAX ];
 do
     ((ITERATIONS_COUNT++))
