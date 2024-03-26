@@ -119,11 +119,6 @@ echo "     "
 echo "       📝 Log Type                    : $LOG_TYPE"
 echo "     "
 echo "       📂 Directory for Logs          : $WORKING_DIR_LOGS"
-echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
-echo "   "
-echo "       📝 Date                        : $my_date"
-echo "       📝 Hour                        : $my_hour1"
-
 echo "   "
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "     🗄️  Log Files to be loaded"
@@ -146,11 +141,15 @@ echo "         -----------------------------------------------------------------
 echo "          🌏  Injecting Log Data" 
 echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
-while true;
+ITERATIONS_COUNT=0
+while [ ITERATIONS_COUNT -lt ITERATIONS_MAX ];
 do
+    ((ITERATIONS_COUNT++))
     for FILE in $WORKING_DIR_LOGS/*; do 
         if [[ $FILE =~ "json"  ]]; then
-            echo "           📦  Inject Log File $FILE"
+            echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
+            echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
+            echo "           📦  Inject Log File $FILE  - ($ITERATIONS_COUNT/$ITERATIONS_MAX)"
             echo "" > /tmp/log_stream.json
             while IFS= read -r line
             do
@@ -161,6 +160,7 @@ do
             done < "$FILE"
             #cat /tmp/log_stream.json
             ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l /tmp/log_stream.json
+            echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
             sleep 5
         fi
     done
