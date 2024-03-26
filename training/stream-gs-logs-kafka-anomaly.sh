@@ -143,7 +143,7 @@ echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
 ITERATIONS_COUNT=0
 ((ITERATIONS_COUNT++))
-while [ ITERATIONS_COUNT -lt ITERATIONS_MAX ];
+while [[ ITERATIONS_COUNT -lt ITERATIONS_MAX ]];
 do
     ((ITERATIONS_COUNT++))
     for FILE in $WORKING_DIR_LOGS/*; do 
