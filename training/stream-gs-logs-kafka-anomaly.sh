@@ -157,12 +157,12 @@ do
                 export my_date=$(date "$DATE_FORMAT_LOGS")
                 echo "               $my_date"
                 echo "$line" | sed -e "s/@MY_TIMESTAMP/$my_date/g" >> /tmp/log_stream.json
-                #sleep 1
+                sleep 0.1
             done < "$FILE"
             #cat /tmp/log_stream.json
             ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l /tmp/log_stream.json
             echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
-            sleep 5
+
         fi
     done
 done
