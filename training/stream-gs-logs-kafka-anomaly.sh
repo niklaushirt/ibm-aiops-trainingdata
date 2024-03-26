@@ -143,6 +143,8 @@ echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
 ITERATIONS_COUNT=0
 ((ITERATIONS_COUNT++))
+my_date=$(date "$DATE_FORMAT_LOGS")
+
 while [[ ITERATIONS_COUNT -lt ITERATIONS_MAX ]];
 do
     ((ITERATIONS_COUNT++))
@@ -151,18 +153,19 @@ do
             echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
             echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
             echo "           📦  Inject Log File $FILE  - ($ITERATIONS_COUNT/$ITERATIONS_MAX)"
+            echo "               $my_date"
+
             echo "" > /tmp/log_stream.json
             while IFS= read -r line
             do
                 export my_date=$(date "$DATE_FORMAT_LOGS")
-                echo "               $my_date"
                 echo "$line" | sed -e "s/@MY_TIMESTAMP/$my_date/g" >> /tmp/log_stream.json
-                sleep 0.1
+                sleep 0.01
             done < "$FILE"
             #cat /tmp/log_stream.json
             ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l /tmp/log_stream.json
             echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
-
+            sleep 5
         fi
     done
 done
