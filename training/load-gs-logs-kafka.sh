@@ -87,7 +87,22 @@ echo ""
 echo ""
 
 
-
+#------------------------------------------------------------------------------------------------------------------------------------
+#  Get Kafkacat executable
+#------------------------------------------------------------------------------------------------------------------------------------
+echo "     📥  Getting Kafkacat executable"
+if [ -x "$(command -v kafkacat)" ]; then
+      export KAFKACAT_EXE=kafkacat
+else
+      if [ -x "$(command -v kcat)" ]; then
+            export KAFKACAT_EXE=kcat
+      else
+            echo "     ❗ ERROR: kafkacat is not installed."
+            echo "     ❌ Aborting..."
+            exit 1
+      fi
+fi
+echo " "
 
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "     🔎  Parameters for Incident Simulation for $APP_NAME"
@@ -183,7 +198,7 @@ for FILE in /tmp/training-files-logs/*; do
             ACT_COUNT=`expr $ACT_COUNT + 1`
             echo "          Injecting file ($ACT_COUNT/$(($NUM_FILES-1))) - $FILE"
             #echo "                 ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=token -X sasl.password=$KAFKA_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE   "
-            kafkacat -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
+            ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
             echo "          ✅ OK"
             echo " "
     fi

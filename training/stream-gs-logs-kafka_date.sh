@@ -24,7 +24,7 @@ echo "**************************************************************************
 
 
 export LOG_TYPE=lags   
-export INDEX_TYPE=lags-training
+export INDEX_TYPE=lags
 
 cd /ibm-aiops-trainingdata
 
@@ -87,8 +87,6 @@ echo ""
 echo ""
 
 
-export my_date=$(date "+%Y-%m-%dT")
-
 #------------------------------------------------------------------------------------------------------------------------------------
 #  Get Kafkacat executable
 #------------------------------------------------------------------------------------------------------------------------------------
@@ -107,6 +105,27 @@ fi
 echo " "
 
 
+
+export my_date=$(date "+%Y-%m-%dT")
+
+
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+if [ "${OS}" == "darwin" ]; then
+      # Suppose we're on Mac
+      export my_hour1=$(date -v-2H "+%H")
+      export my_hour2=$(date -v-1H "+%H")
+      export my_hour3=$(date "+%H")
+      export my_hour4=$(date -v+1H "+%H")
+else
+      export my_hour1=$(date -d '2 hours ago' "+%H")
+      export my_hour2=$(date -d '1 hour ago' "+%H")
+      export my_hour3=$(date "+%H")
+      export my_hour4=$(date -d '1 hour' "+%H")
+fi
+
+
+
+
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "     🔎  Parameters for Incident Simulation for $APP_NAME"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -122,6 +141,8 @@ echo "     "
 echo "       📂 Directory for Logs          : $WORKING_DIR_LOGS"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "   "
+echo "       📝 Date                        : $my_date"
+echo "       📝 Hour                        : $my_hour1"
 
 echo "   "
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -141,6 +162,48 @@ mkdir /tmp/training-files-logs/  >/tmp/demo.log 2>&1
 rm -f -r /tmp/training-files-logs/* 
 
 
+for actFile in $(ls -1 $WORKING_DIR_LOGS | grep "zip"); 
+do 
+
+#------------------------------------------------------------------------------------------------------------------------------------
+#  Prepare the Data
+#------------------------------------------------------------------------------------------------------------------------------------
+    echo "   "
+    echo "   "
+    echo "   "
+    echo "   "
+    echo "      -------------------------------------------------------------------------------------------------------------------------------------"
+    echo "        🛠️   Preparing Data for file $actFile"
+    echo "      -------------------------------------------------------------------------------------------------------------------------------------"
+
+    #------------------------------------------------------------------------------------------------------------------------------------
+    #  Create file and structure in /tmp
+    #------------------------------------------------------------------------------------------------------------------------------------
+    echo "      -------------------------------------------------------------------------------------------------------------------------------------"
+    echo "        🛠️   Copy $actFile to /tmp/training-files-logs/"
+
+    cp $WORKING_DIR_LOGS/$actFile /tmp/training-files-logs/$actFile
+
+    cd /tmp/training-files-logs/
+
+    unzip /tmp/training-files-logs/$actFile
+
+
+
+
+    export NUM_FILES=$(ls | wc -l)
+    ls -1 /tmp/training-files-logs/x*| sed 's/^/             /'
+    #cat xaa
+    cd -  >/tmp/demo.log 2>&1 
+    echo " "
+    echo "          ✅ OK - File Count: $NUM_FILES"
+
+done
+
+rm -f -r /tmp/training-files-logs/*.zip 
+rm -f -r /tmp/training-files-logs/__MACOSX
+
+
 
 echo "   "
 echo "      ----------------------------------------------------------------------------------------------------------------------------------------"
@@ -154,81 +217,25 @@ echo "         -----------------------------------------------------------------
 echo "          🌏  Injecting Log Data" 
 echo "              Quit with Ctrl-Z"
 echo "         -------------------------------------------------------------------------------------------------------------------------------------"
+ACT_COUNT=0
+for FILE in /tmp/training-files-logs/*; do 
+    if [[ $FILE =~ "x"  ]]; then
+            ACT_COUNT=`expr $ACT_COUNT + 1`
+            
+            sed -i -e "s/2023-11-08T07/$my_date$my_hour1/g" $FILE
+            sed -i -e "s/2023-11-08T08/$my_date$my_hour2/g" $FILE
+            sed -i -e "s/2023-11-08T09/$my_date$my_hour3/g" $FILE
+            sed -i -e "s/2023-11-08T10/$my_date$my_hour4/g" $FILE
+            tail $FILE
 
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-DAYS=0
-
-while [ $DAYS -lt 7 ];
-do
-
-    for actFile in $(ls -1 $WORKING_DIR_LOGS | grep "zip"); 
-    do 
-
-    #------------------------------------------------------------------------------------------------------------------------------------
-    #  Prepare the Data
-    #------------------------------------------------------------------------------------------------------------------------------------
-        echo "   "
-        echo "   "
-        echo "   "
-        echo "   "
-        echo "      -------------------------------------------------------------------------------------------------------------------------------------"
-        echo "        🛠️   Preparing Data for file $actFile"
-        echo "      -------------------------------------------------------------------------------------------------------------------------------------"
-
-        #------------------------------------------------------------------------------------------------------------------------------------
-        #  Create file and structure in /tmp
-        #------------------------------------------------------------------------------------------------------------------------------------
-        echo "      -------------------------------------------------------------------------------------------------------------------------------------"
-        echo "        🛠️   Copy $actFile to /tmp/training-files-logs/"
-
-        rm -f -r /tmp/training-files-logs/* 
-        cp $WORKING_DIR_LOGS/$actFile /tmp/training-files-logs/$actFile
-
-        cd /tmp/training-files-logs/
-
-        unzip /tmp/training-files-logs/$actFile
-
-
-
-
-        export NUM_FILES=$(ls | wc -l)
-        ls -1 /tmp/training-files-logs/x*| sed 's/^/             /'
-        #cat xaa
-        cd -  >/tmp/demo.log 2>&1 
-        echo " "
-        echo "          ✅ OK - File Count: $NUM_FILES"
-
-    done
-
-    rm -f -r /tmp/training-files-logs/*.zip 
-    rm -f -r /tmp/training-files-logs/__MACOSX
-
-
-
-
-    if [ "${OS}" == "darwin" ]; then
-        # Suppose we're on Mac
-        export my_date=$(date -v-${DAYS}d "+%Y-%m-%d")
-    else
-        export my_date=$(date -d ${DAYS}' days ago' "+%Y-%m-%d")
+            echo "          Injecting file ($ACT_COUNT/$(($NUM_FILES-1))) - $FILE"
+            #echo "                 ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=token -X sasl.password=$KAFKA_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE   "
+            ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
+            echo "          ✅ OK"
+            echo " "
     fi
-
-
-    echo $my_date
-    echo "          Injecting files for date $my_date ($DAYS/7)"
-    
-    ACT_COUNT=0
-    for FILE in /tmp/training-files-logs/*; do 
-        if [[ $FILE =~ "x"  ]]; then
-                ACT_COUNT=`expr $ACT_COUNT + 1`
-
-                sed -i -e "s/@MY_DATE/$my_date/g" $FILE
-                #cat $FILE
-                #tail $FILE
-                ${KAFKACAT_EXE} -v -X security.protocol=SASL_SSL -X ssl.ca.location=./ca.crt -X sasl.mechanisms=SCRAM-SHA-512  -X sasl.username=$SASL_USER -X sasl.password=$SASL_PASSWORD -b $KAFKA_BROKER -P -t $KAFKA_TOPIC_LOGS -l $FILE
-        fi
-    done
-    ((DAYS++)) 
-    
 done
+
+
+
 
