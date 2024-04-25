@@ -56,20 +56,34 @@ echo "     📥 Get Working Directories"
 export WORKING_DIR_LOGS="./training-data/$VERSION/$INDEX_TYPE/"
 echo $WORKING_DIR_LOGS
 
-echo "     📥 Get Kafka Topics"
-export KAFKA_TOPIC_LOGS=$(oc get kafkatopics -n $AIOPS_NAMESPACE | grep cp4waiops-cartridge-logs-elk| awk '{print $1;}')
+#------------------------------------------------------------------------------------------------------------------------------------
+#  Get the cert for kafkacat
+#------------------------------------------------------------------------------------------------------------------------------------
+echo "     🥇 Getting Kafka Cert"
+oc extract secret/kafka-secrets -n $AIOPS_NAMESPACE --keys=ca.crt --confirm| sed 's/^/            /'
+echo ""
+echo ""
 
-if [[ "${KAFKA_TOPIC_LOGS}" == "" ]]; then
-    echo "          ❗ Please define a Kafka connection in IBMAIOps of type $LOG_TYPE."
-    echo "          ❗ Existing Log Topics are:"
-    oc get kafkatopics -n $AIOPS_NAMESPACE | grep cp4waiops-cartridge-logs-| awk '{print $1;}'| sed 's/^/                /'
-    echo ""
-    echo "          ❌ Exiting....."
-    #exit 1 
 
+export my_date=$(date "+%Y-%m-%dT")
+
+#------------------------------------------------------------------------------------------------------------------------------------
+#  Get Kafkacat executable
+#------------------------------------------------------------------------------------------------------------------------------------
+echo "     📥  Getting Kafkacat executable"
+if [ -x "$(command -v kafkacat)" ]; then
+      export KAFKACAT_EXE=kafkacat
 else
-    echo "        🟢 OK"
+      if [ -x "$(command -v kcat)" ]; then
+            export KAFKACAT_EXE=kcat
+      else
+            echo "     ❗ ERROR: kafkacat is not installed."
+            echo "     ❌ Aborting..."
+            exit 1
+      fi
 fi
+echo " "
+
 
 #------------------------------------------------------------------------------------------------------------------------------------
 #  Get Kafkacat executable
@@ -94,14 +108,6 @@ export SASL_USER=$(oc get secret $KAFKA_SECRET -n $AIOPS_NAMESPACE --template={{
 export SASL_PASSWORD=$(oc get secret $KAFKA_SECRET -n $AIOPS_NAMESPACE --template={{.data.password}} | base64 --decode)
 export KAFKA_BROKER=$(oc get routes iaf-system-kafka-0 -n $AIOPS_NAMESPACE -o=jsonpath='{.status.ingress[0].host}{"\n"}'):443
 
-
-#------------------------------------------------------------------------------------------------------------------------------------
-#  Get the cert for kafkacat
-#------------------------------------------------------------------------------------------------------------------------------------
-echo "     🥇 Getting Kafka Cert"
-oc extract secret/kafka-secrets -n $AIOPS_NAMESPACE --keys=ca.crt --confirm| sed 's/^/            /'
-echo ""
-echo ""
 
 
 
