@@ -140,7 +140,7 @@ echo "   -----------------------------------------------------------------------
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/aiops.alerts.csv' with header=true;\""
+    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/aiops.alerts.csv' with header=true AND MAXBATCHSIZE=100 AND CHUNKSIZE=1;\""
 echo "  "
 echo "  "
 
