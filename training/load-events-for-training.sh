@@ -43,13 +43,13 @@ fi
 
 
 
-if [[  $WAIOPS_NAMESPACE == "" ]]; then
+if [[  $AIOPS_NAMESPACE == "" ]]; then
     # Get Namespace from Cluster 
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     echo "   🔬 Getting Installation Namespace"
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    export WAIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
-    echo "       ✅ OK - AI Manager:               $WAIOPS_NAMESPACE"
+    export AIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
+    echo "       ✅ OK - AI Manager:               $AIOPS_NAMESPACE"
 fi
 
 if [ ! -x "$(command -v unzip)" ]; then
@@ -63,8 +63,8 @@ fi
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎  Get Cassandra Authentication"	
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export CASSANDRA_PASS=$(oc get secret aiops-topology-cassandra-auth-secret -n $WAIOPS_NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
-export CASSANDRA_USER=$(oc get secret aiops-topology-cassandra-auth-secret -n $WAIOPS_NAMESPACE -o jsonpath='{.data.username}' | base64 -d)
+export CASSANDRA_PASS=$(oc get secret aiops-topology-cassandra-auth-secret -n $AIOPS_NAMESPACE -o jsonpath='{.data.password}' | base64 -d)
+export CASSANDRA_USER=$(oc get secret aiops-topology-cassandra-auth-secret -n $AIOPS_NAMESPACE -o jsonpath='{.data.username}' | base64 -d)
 
 echo "CASSANDRA_USER:$CASSANDRA_USER"
 echo "CASSANDRA_PASS:$CASSANDRA_PASS"
@@ -113,7 +113,7 @@ echo "   -----------------------------------------------------------------------
 echo "      👉 Version    : $VERSION"
 echo "  "
 echo "  "
-    oc rsync -n $WAIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/
 echo "  "
 echo "  "
 
@@ -121,7 +121,7 @@ echo "  "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🧻 Empty Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE aiops.alerts;\""
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE aiops.alerts;\""
 echo "  "
 echo "  "
 
@@ -130,7 +130,7 @@ echo "  "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
 
 
 
@@ -140,7 +140,7 @@ echo "   -----------------------------------------------------------------------
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/aiops.alerts.csv' with header=true AND MAXBATCHSIZE=100 AND CHUNKSIZE=1;\""
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/aiops.alerts.csv' with header=true AND MAXBATCHSIZE=100 AND CHUNKSIZE=1;\""
 echo "  "
 echo "  "
 
@@ -148,7 +148,7 @@ echo "  "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $WAIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
 
 
 echo "*****************************************************************************************************************************"

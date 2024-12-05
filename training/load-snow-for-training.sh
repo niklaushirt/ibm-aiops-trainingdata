@@ -31,13 +31,13 @@ fi
 
 
 
-if [[  $WAIOPS_NAMESPACE == "" ]]; then
+if [[  $AIOPS_NAMESPACE == "" ]]; then
     # Get Namespace from Cluster 
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     echo "   🔬 Getting Installation Namespace"
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    export WAIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
-    echo "       ✅ OK - AI Manager:    $WAIOPS_NAMESPACE"
+    export AIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
+    echo "       ✅ OK - AI Manager:    $AIOPS_NAMESPACE"
 fi
 
 
@@ -57,7 +57,7 @@ echo "  "
 
 
 
-while true; do oc port-forward  -n $WAIOPS_NAMESPACE statefulset/iaf-system-elasticsearch-es-aiops 9200; done>/dev/null 2>&1&
+while true; do oc port-forward  -n $AIOPS_NAMESPACE statefulset/aiops-ibm-elasticsearch-es-server-all 9200; done>/dev/null 2>&1&
 
 echo ""
 ./training/scripts/load-es-index.sh

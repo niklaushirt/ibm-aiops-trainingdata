@@ -49,8 +49,8 @@ echo "   -----------------------------------------------------------------------
 echo "   🔬 Getting Installation Namespace"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 
-export WAIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
-echo "       ✅ OK - AI Manager:    $WAIOPS_NAMESPACE"
+export AIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
+echo "       ✅ OK - AI Manager:    $AIOPS_NAMESPACE"
 
 
 # Define Log format
@@ -66,19 +66,19 @@ echo "    🚀  Initializing..."
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 
 
-echo "     📛 Select Namespace $WAIOPS_NAMESPACE"
-oc project $WAIOPS_NAMESPACE  >/tmp/demo.log 2>&1  || true
+echo "     📛 Select Namespace $AIOPS_NAMESPACE"
+oc project $AIOPS_NAMESPACE  >/tmp/demo.log 2>&1  || true
 echo " "
 
 echo "     📥 Get Kafka Topics"
-export KAFKA_TOPIC_CR=$(oc get kafkatopics -n $WAIOPS_NAMESPACE | grep ibm-aiops-cartridge.changerequest| awk '{print $1;}')
+export KAFKA_TOPIC_CR=$(oc get kafkatopics -n $AIOPS_NAMESPACE | grep ibm-aiops-cartridge.changerequest| awk '{print $1;}')
 
 echo " "
 echo "     🔐 Get Kafka Password"
-export KAFKA_SECRET=$(oc get secret -n $WAIOPS_NAMESPACE |grep 'aiops-kafka-secret'|awk '{print$1}')
-export SASL_USER=$(oc get secret $KAFKA_SECRET -n $WAIOPS_NAMESPACE --template={{.data.username}} | base64 --decode)
-export SASL_PASSWORD=$(oc get secret $KAFKA_SECRET -n $WAIOPS_NAMESPACE --template={{.data.password}} | base64 --decode)
-export KAFKA_BROKER=$(oc get routes iaf-system-kafka-0 -n $WAIOPS_NAMESPACE -o=jsonpath='{.status.ingress[0].host}{"\n"}'):443
+export KAFKA_SECRET=$(oc get secret -n $AIOPS_NAMESPACE |grep 'aiops-kafka-secret'|awk '{print$1}')
+export SASL_USER=$(oc get secret $KAFKA_SECRET -n $AIOPS_NAMESPACE --template={{.data.username}} | base64 --decode)
+export SASL_PASSWORD=$(oc get secret $KAFKA_SECRET -n $AIOPS_NAMESPACE --template={{.data.password}} | base64 --decode)
+export KAFKA_BROKER=$(oc get routes iaf-system-kafka-0 -n $AIOPS_NAMESPACE -o=jsonpath='{.status.ingress[0].host}{"\n"}'):443
 echo " "
 
 echo "     📥 Get Working Directories"
@@ -108,7 +108,7 @@ echo " "
 #  Get the cert for kafkacat
 #------------------------------------------------------------------------------------------------------------------------------------
 echo "     🥇 Getting Kafka Cert"
-oc extract secret/kafka-secrets -n $WAIOPS_NAMESPACE --keys=ca.crt --confirm  >/tmp/demo.log 2>&1  || true
+oc extract secret/kafka-secrets -n $AIOPS_NAMESPACE --keys=ca.crt --confirm  >/tmp/demo.log 2>&1  || true
 echo "        ✅ OK"
 
 

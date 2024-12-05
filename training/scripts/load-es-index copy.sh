@@ -8,7 +8,7 @@
 
 
 echo "   ***************************************************************************************************************************************"	
-echo "    🚀  Load \"$INDEX_TYPE\" Indexes (<=3.7)"	
+echo "    🚀  Load \"$INDEX_TYPE\" Indexes (>=4.1)"	
 echo "     "	
 
 #--------------------------------------------------------------------------------------------------------------------------------------------	
@@ -24,6 +24,14 @@ then
       exit 1	
 fi	
 
+if [[  $AIOPS_NAMESPACE == "" ]]; then
+    # Get Namespace from Cluster 
+    echo "   ------------------------------------------------------------------------------------------------------------------------------"
+    echo "   🔬 Getting Installation Namespace"
+    echo "   ------------------------------------------------------------------------------------------------------------------------------"
+    export AIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
+    echo "       ✅ OK - AI Manager:    $AIOPS_NAMESPACE"
+fi
 
 #--------------------------------------------------------------------------------------------------------------------------------------------	
 #  Get Credentials	
@@ -35,11 +43,15 @@ echo "     ---------------------------------------------------------------------
 oc project $AIOPS_NAMESPACE > /dev/null 2>&1	
 
 
-export username=$(oc get secret $(oc get secrets | grep iaf-system-elasticsearch-es-default-user | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.username}"| base64 --decode)	
-export password=$(oc get secret $(oc get secrets | grep iaf-system-elasticsearch-es-default-user | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.password}"| base64 --decode)	
+# export username=$(oc get secret $(oc get secrets | grep iaf-system-elasticsearch-es-default-user | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.username}"| base64 --decode)	
+# export password=$(oc get secret $(oc get secrets | grep iaf-system-elasticsearch-es-default-user | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.password}"| base64 --decode)	
+export username=elastic
+export password=$(oc get secret $(oc get secrets | grep aiops-ibm-elasticsearch-creds | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.elastic}"| base64 --decode)	
+#echo $username:$password
 
 
-export WORKING_DIR_ES="./robot-shop/$VERSION/$INDEX_TYPE"	
+
+export WORKING_DIR_ES="./training-data/$VERSION/$INDEX_TYPE"	
 
 
 echo "           ✅ Credentials:               OK"	

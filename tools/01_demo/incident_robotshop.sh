@@ -49,8 +49,8 @@ echo "   -----------------------------------------------------------------------
 echo "    🔬 Getting Installation Namespace"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 
-export WAIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
-echo "       ✅ OK - AI Manager:    $WAIOPS_NAMESPACE"
+export AIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
+echo "       ✅ OK - AI Manager:    $AIOPS_NAMESPACE"
 
 
 
@@ -84,7 +84,7 @@ then
       export LOG_TYPE=noi
 fi
 
-oc project $WAIOPS_NAMESPACE  >/tmp/demo.log 2>&1  || true
+oc project $AIOPS_NAMESPACE  >/tmp/demo.log 2>&1  || true
 
 
 
@@ -94,9 +94,9 @@ echo "   -----------------------------------------------------------------------
 echo "   🚀  ❎ Closing existing Stories and Alerts..."
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 export USER_PASS="$(oc get secret aiops-ir-core-ncodl-api-secret -o jsonpath='{.data.username}' | base64 --decode):$(oc get secret aiops-ir-core-ncodl-api-secret -o jsonpath='{.data.password}' | base64 --decode)"
-oc apply -n $WAIOPS_NAMESPACE -f ./tools/01_demo/scripts/datalayer-api-route.yaml >/tmp/demo.log 2>&1  || true
+oc apply -n $AIOPS_NAMESPACE -f ./tools/01_demo/scripts/datalayer-api-route.yaml >/tmp/demo.log 2>&1  || true
 sleep 2
-export DATALAYER_ROUTE=$(oc get route  -n $WAIOPS_NAMESPACE datalayer-api  -o jsonpath='{.status.ingress[0].host}')
+export DATALAYER_ROUTE=$(oc get route  -n $AIOPS_NAMESPACE datalayer-api  -o jsonpath='{.status.ingress[0].host}')
 export result=$(curl "https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/stories" --insecure --silent -X PATCH -u "${USER_PASS}" -d '{"state": "resolved"}' -H 'Content-Type: application/json' -H "x-username:admin" -H "x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255")
 echo "       Stories closed: "$(echo $result | jq ".affected")
 
@@ -117,15 +117,15 @@ echo "   -----------------------------------------------------------------------
 
 
 echo "     📥 Get Kafka Topics"
-export KAFKA_TOPIC_LOGS=$(oc get kafkatopics -n $WAIOPS_NAMESPACE | grep ibm-aiops-cartridge-logs-$LOG_TYPE| awk '{print $1;}')
-export KAFKA_TOPIC_EVENTS=$(oc get kafkatopics -n $WAIOPS_NAMESPACE | grep -v ibm-aiopsibm-aiops| grep -v noi-integration| grep -v "1000-1000"| grep ibm-aiops-cartridge-alerts-$EVENTS_TYPE| awk '{print $1;}')
+export KAFKA_TOPIC_LOGS=$(oc get kafkatopics -n $AIOPS_NAMESPACE | grep ibm-aiops-cartridge-logs-$LOG_TYPE| awk '{print $1;}')
+export KAFKA_TOPIC_EVENTS=$(oc get kafkatopics -n $AIOPS_NAMESPACE | grep -v ibm-aiopsibm-aiops| grep -v noi-integration| grep -v "1000-1000"| grep ibm-aiops-cartridge-alerts-$EVENTS_TYPE| awk '{print $1;}')
 
 echo " "
 echo "     🔐 Get Kafka Password"
-export KAFKA_SECRET=$(oc get secret -n $WAIOPS_NAMESPACE |grep 'aiops-kafka-secret'|awk '{print$1}')
-export SASL_USER=$(oc get secret $KAFKA_SECRET -n $WAIOPS_NAMESPACE --template={{.data.username}} | base64 --decode)
-export SASL_PASSWORD=$(oc get secret $KAFKA_SECRET -n $WAIOPS_NAMESPACE --template={{.data.password}} | base64 --decode)
-export KAFKA_BROKER=$(oc get routes iaf-system-kafka-0 -n $WAIOPS_NAMESPACE -o=jsonpath='{.status.ingress[0].host}{"\n"}'):443
+export KAFKA_SECRET=$(oc get secret -n $AIOPS_NAMESPACE |grep 'aiops-kafka-secret'|awk '{print$1}')
+export SASL_USER=$(oc get secret $KAFKA_SECRET -n $AIOPS_NAMESPACE --template={{.data.username}} | base64 --decode)
+export SASL_PASSWORD=$(oc get secret $KAFKA_SECRET -n $AIOPS_NAMESPACE --template={{.data.password}} | base64 --decode)
+export KAFKA_BROKER=$(oc get routes iaf-system-kafka-0 -n $AIOPS_NAMESPACE -o=jsonpath='{.status.ingress[0].host}{"\n"}'):443
 echo " "
 
 echo "     📥 Get Working Directories"
@@ -178,7 +178,7 @@ echo " "
 #  Get the cert for kafkacat
 #------------------------------------------------------------------------------------------------------------------------------------
 echo "     🥇 Getting Kafka Cert"
-oc extract secret/kafka-secrets -n $WAIOPS_NAMESPACE --keys=ca.crt --confirm  >/tmp/demo.log 2>&1  || true
+oc extract secret/kafka-secrets -n $AIOPS_NAMESPACE --keys=ca.crt --confirm  >/tmp/demo.log 2>&1  || true
 echo "      ✅ OK"
 
 

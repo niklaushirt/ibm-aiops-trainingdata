@@ -66,9 +66,9 @@ echo "   -----------------------------------------------------------------------
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
 echo "     🔐  Getting credentials"
 echo "   ----------------------------------------------------------------------------------------------------------------------------------------"
-export WAIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
+export AIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
 
-oc project $WAIOPS_NAMESPACE >/dev/null 2>/dev/null
+oc project $AIOPS_NAMESPACE >/dev/null 2>/dev/null
 
 export ROUTE=$(oc get route | grep ibm-nginx-svc | awk '{print $2}')
 PASS=$(oc get secret admin-user-details -o jsonpath='{.data.initial_admin_password}' | base64 -d)
