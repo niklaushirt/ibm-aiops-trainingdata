@@ -3,7 +3,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: load-log-indexes
-  namespace: ibm-aiops-installer
+  namespace: ibm-installer
 spec:
   serviceAccountName: demo-admin
   template:

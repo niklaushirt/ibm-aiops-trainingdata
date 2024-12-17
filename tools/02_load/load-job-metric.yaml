@@ -3,7 +3,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: load-metric-cassandra
-  namespace: ibm-aiops-installer
+  namespace: ibm-installer
 spec:
   serviceAccountName: demo-admin
   template:
@@ -56,7 +56,7 @@ spec:
 
           env:
             - name: INDEX_OVERWRITE
-              value : "true"
+              value : "false"
             - name: VERSION
               value : "latest"
       restartPolicy: Never

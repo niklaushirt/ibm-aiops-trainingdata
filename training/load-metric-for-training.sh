@@ -110,16 +110,18 @@ echo "  "
 echo "  "
 echo "  "
 
+if [ "$INDEX_OVERWRITE" = true ] ; then
+    echo "   ------------------------------------------------------------------------------------------------------------------------------"
+    echo "   ❗🧻 Empty Cassandra tables"
+    echo "   ------------------------------------------------------------------------------------------------------------------------------"
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.dt_metric_value;\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_metric_resource;\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_resource;\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_group;\""
+    echo "  "
+    echo "  "
+fi
 
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🧻 Empty Cassandra tables"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.dt_metric_value;\""
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_metric_resource;\""
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_resource;\""
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_group;\""
-echo "  "
-echo "  "
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
