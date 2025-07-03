@@ -59,7 +59,7 @@ echo "  "
 
 
 
-while true; do oc port-forward  -n $AIOPS_NAMESPACE statefulset/aiops-ibm-elasticsearch-es-server-all 9200; done>/dev/null 2>&1&
+while true; do oc port-forward  -n $AIOPS_NAMESPACE port-forward service/aiops-opensearch 9200; done>/dev/null 2>&1&
 
 echo ""
 ./training/scripts/load-es-index-deprecated.sh

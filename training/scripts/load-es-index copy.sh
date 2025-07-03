@@ -46,7 +46,7 @@ oc project $AIOPS_NAMESPACE > /dev/null 2>&1
 # export username=$(oc get secret $(oc get secrets | grep iaf-system-elasticsearch-es-default-user | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.username}"| base64 --decode)	
 # export password=$(oc get secret $(oc get secrets | grep iaf-system-elasticsearch-es-default-user | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.password}"| base64 --decode)	
 export username=elastic
-export password=$(oc get secret $(oc get secrets | grep aiops-ibm-elasticsearch-creds | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.elastic}"| base64 --decode)	
+export password=$(oc get secret $(oc get secrets | grep aiops-opensearch-admin-secret | awk '!/-min/' | awk '{print $1;}') -o jsonpath="{.data.password}"| base64 --decode)	
 #echo $username:$password
 
 
@@ -130,7 +130,7 @@ if [[ $existingIndexes == "" ]] ;
 then
     echo "        ❗ Please start port forward in separate terminal."
     echo "        ❗ Run the following:"
-    echo "            while true; do oc port-forward statefulset/aiops-ibm-elasticsearch-es-server-all 9200; done"
+    echo "            while true; do oc port-forward port-forward service/aiops-opensearch 9200; done"
     echo "        ❌ Aborting..."
     echo "     "
     echo "     "
