@@ -115,13 +115,13 @@ sed -i "s/2026-02-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚀 Update Training Data 2 Month ago"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export current_date=$(date --date='-1 month' +'%Y-%m-%d')
+export current_date=$(date --date='-2 month' +'%Y-%m-%d')
 sed -i "s/2026-03-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚀 Update Training Data 3 Month ago"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export current_date=$(date --date='-1 month' +'%Y-%m-%d')
+export current_date=$(date --date='-3 month' +'%Y-%m-%d')
 sed -i "s/2026-04-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
 
 
