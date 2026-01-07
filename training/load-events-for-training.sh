@@ -20,44 +20,16 @@ echo " -------------------------------------------------------------------------
 echo "  "
 echo "  "
 
-export INDEX_TYPE=events
 
+# Get Namespace from Cluster 
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "    🔬 Getting Installation Namespace"
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
 
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# DO NOT EDIT BELOW
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export AIOPS_NAMESPACE=$(oc get po -A|grep aiops-orchestrator-controller |awk '{print$1}')
+echo "       ✅ OK - IBMAIOps:    $AIOPS_NAMESPACE"
 
-
-if [[  $VERSION == "" ]]; then
-    echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    echo "   🔬 Setting Version to default latest"
-    echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    export VERSION=latest
-fi
-
-
-
-
-
-if [[  $AIOPS_NAMESPACE == "" ]]; then
-    # Get Namespace from Cluster 
-    echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    echo "   🔬 Getting Installation Namespace"
-    echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    export AIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
-    echo "       ✅ OK - AI Manager:               $AIOPS_NAMESPACE"
-fi
-
-if [ ! -x "$(command -v unzip)" ]; then
-      echo "❌ Unzip not installed."
-
-      echo "❌ Aborting...."
-      exit 1
-fi
+oc project $AIOPS_NAMESPACE  >/tmp/demo.log
 
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
@@ -70,74 +42,16 @@ echo "CASSANDRA_USER:$CASSANDRA_USER"
 echo "CASSANDRA_PASS:$CASSANDRA_PASS"
 
 
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🔎  Check for Training Files in ./training-data/$VERSION/$INDEX_TYPE/"	
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export MERIC_FILES=$(ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "alerts")	
-if [[ $MERIC_FILES == "" ]] ;	
-then	
-      echo "           ❗ No Events Dump files found"	
-      echo "           ❗    No Events Dump files found to ingest in path ./training-data/$VERSION/$INDEX_TYPE/"	
-      echo "           ❗    Please place them in the directory."	
-      echo "           ❌ Aborting..."	
-      exit 1	
-else	
-      echo "     ✅ Dump Files:                 OK"	
-fi	
-echo "     "	
-
-
-#--------------------------------------------------------------------------------------------------------------------------------------------	
-#  Check Credentials	
-#--------------------------------------------------------------------------------------------------------------------------------------------	
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🗄️  Indexes to be loaded from ./training-data/$VERSION/$INDEX_TYPE/"	
+echo "   🔎  Get REST Authentication"	
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-ls -1 ./training-data/$VERSION/$INDEX_TYPE/ | grep "aiops"	 | sed 's/^/          /'
-echo "       "	
-echo "       "	
+export USER_PASS="$(oc get secret aiops-ir-core-ncodl-api-secret -o jsonpath='{.data.username}' | base64 --decode):$(oc get secret -n $AIOPS_NAMESPACE aiops-ir-core-ncodl-api-secret -o jsonpath='{.data.password}' | base64 --decode)"
+sleep 2
+export DATALAYER_ROUTE=$(oc get route  -n $AIOPS_NAMESPACE datalayer-api  -o jsonpath='{.status.ingress[0].host}')
 
-
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🚀 Update Training Data Today"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export current_date=$(date --date='-1 day' +'%Y-%m-%d')
-sed -i "s/2026-01-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🚀 Update Training Data 1 Month ago"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export current_date=$(date --date='-1 month' +'%Y-%m-%d')
-sed -i "s/2026-02-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🚀 Update Training Data 2 Month ago"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export current_date=$(date --date='-2 month' +'%Y-%m-%d')
-sed -i "s/2026-03-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🚀 Update Training Data 3 Month ago"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-export current_date=$(date --date='-3 month' +'%Y-%m-%d')
-sed -i "s/2026-04-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
-
-
-
-
-
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   💾 Copy Files into Pod"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "      👉 Version    : $VERSION"
-echo "  "
-echo "  "
-    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/
-echo "  "
-echo "  "
+echo "USER_PASS:$USER_PASS"
+echo "DATALAYER_ROUTE:$DATALAYER_ROUTE"
 
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
@@ -149,32 +63,151 @@ echo "  "
 
 
 
+
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "   🚀 Update Training Data Today"
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+cp ./training-data/latest/events-rest/events-training-rest.json /tmp/events-training-rest.json
+export current_date=$(date --date='-1 day' +'%Y-%m-%d')
+sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
+
+
+while IFS= read -r line
+do      
+      #echo "              line:$"
+      line=${line//\"/\\\"}
+
+      export c_string=$(echo "curl \"https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events\" --insecure -s  -X POST -u \"${USER_PASS}\" -H 'Content-Type: application/json' -H 'x-username:admin' -H 'x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255' -d \"${line}\"")
+      #echo "       Q:$c_string"
+      #echo ""
+      export result=$(eval $c_string)
+      #export result=$(curl "https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events" --insecure --silent -X POST -u "${USER_PASS}" -H 'Content-Type: application/json' -H "x-username:admin" -H "x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255" -d "${line}")
+      #echo $result
+      myId=$(echo $result|jq ".deduplicationKey")
+      echo "              DONE:$myId"
+
+done < "/tmp/events-training-rest.json"
+echo "              ✅ OK"
+echo " "
+
+
+
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "   🚀 Update Training Data 1 Month ago"
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+export current_date=$(date --date='-1 month' +'%Y-%m-%d')
+sed -i "s/2026-02-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+
+
+while IFS= read -r line
+do      
+      #echo "              line:$"
+      line=${line//\"/\\\"}
+
+      export c_string=$(echo "curl \"https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events\" --insecure -s  -X POST -u \"${USER_PASS}\" -H 'Content-Type: application/json' -H 'x-username:admin' -H 'x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255' -d \"${line}\"")
+      #echo "       Q:$c_string"
+      #echo ""
+      export result=$(eval $c_string)
+      #export result=$(curl "https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events" --insecure --silent -X POST -u "${USER_PASS}" -H 'Content-Type: application/json' -H "x-username:admin" -H "x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255" -d "${line}")
+      #echo $result
+      myId=$(echo $result|jq ".deduplicationKey")
+      echo "              DONE:$myId"
+
+done < "/tmp/events-training-rest.json"
+echo "              ✅ OK"
+echo " "
+
+
+
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "   🚀 Update Training Data 2 Month ago"
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+export current_date=$(date --date='-2 month' +'%Y-%m-%d')
+sed -i "s/2026-03-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+
+
+while IFS= read -r line
+do      
+      #echo "              line:$"
+      line=${line//\"/\\\"}
+
+      export c_string=$(echo "curl \"https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events\" --insecure -s  -X POST -u \"${USER_PASS}\" -H 'Content-Type: application/json' -H 'x-username:admin' -H 'x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255' -d \"${line}\"")
+      #echo "       Q:$c_string"
+      #echo ""
+      export result=$(eval $c_string)
+      #export result=$(curl "https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events" --insecure --silent -X POST -u "${USER_PASS}" -H 'Content-Type: application/json' -H "x-username:admin" -H "x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255" -d "${line}")
+      #echo $result
+      myId=$(echo $result|jq ".deduplicationKey")
+      echo "              DONE:$myId"
+
+done < "/tmp/events-training-rest.json"
+echo "              ✅ OK"
+echo " "
+
+
+
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "   🚀 Update Training Data 3 Month ago"
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+export current_date=$(date --date='-3 month' +'%Y-%m-%d')
+sed -i "s/2026-04-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+
+
+while IFS= read -r line
+do      
+      #echo "              line:$"
+      line=${line//\"/\\\"}
+
+      export c_string=$(echo "curl \"https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events\" --insecure -s  -X POST -u \"${USER_PASS}\" -H 'Content-Type: application/json' -H 'x-username:admin' -H 'x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255' -d \"${line}\"")
+      #echo "       Q:$c_string"
+      #echo ""
+      export result=$(eval $c_string)
+      #export result=$(curl "https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events" --insecure --silent -X POST -u "${USER_PASS}" -H 'Content-Type: application/json' -H "x-username:admin" -H "x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255" -d "${line}")
+      #echo $result
+      myId=$(echo $result|jq ".deduplicationKey")
+      echo "              DONE:$myId"
+
+done < "/tmp/events-training-rest.json"
+echo "              ✅ OK"
+echo " "
+
+
+
+
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+echo "   🚀 Update Training Data 4 Month ago"
+echo "   ------------------------------------------------------------------------------------------------------------------------------"
+export current_date=$(date --date='-4 month' +'%Y-%m-%d')
+sed -i "s/2026-04-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+
+
+while IFS= read -r line
+do      
+      #echo "              line:$"
+      line=${line//\"/\\\"}
+
+      export c_string=$(echo "curl \"https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events\" --insecure -s  -X POST -u \"${USER_PASS}\" -H 'Content-Type: application/json' -H 'x-username:admin' -H 'x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255' -d \"${line}\"")
+      #echo "       Q:$c_string"
+      #echo ""
+      export result=$(eval $c_string)
+      #export result=$(curl "https://$DATALAYER_ROUTE/irdatalayer.aiops.io/active/v1/events" --insecure --silent -X POST -u "${USER_PASS}" -H 'Content-Type: application/json' -H "x-username:admin" -H "x-subscription-id:cfd95b7e-3bc7-4006-a4a8-a73a79c71255" -d "${line}")
+      #echo $result
+      myId=$(echo $result|jq ".deduplicationKey")
+      echo "              DONE:$myId"
+
+done < "/tmp/events-training-rest.json"
+echo "              ✅ OK"
+echo " "
+
+
+
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🔎 Check Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
     oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
 
-
-
-
-
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🚚 Load data structure dump into Cassandra tables"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/aiops.alerts.csv' with header=true AND MAXBATCHSIZE=100 AND CHUNKSIZE=1;\""
-echo "  "
-echo "  "
-
-
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🔎 Check Cassandra tables"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"SELECT COUNT(*) FROM aiops.alerts;\""
 
 
 echo "*****************************************************************************************************************************"
 echo " ✅ DONE"
 echo "*****************************************************************************************************************************"
-
-
