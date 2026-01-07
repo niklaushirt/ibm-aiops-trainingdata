@@ -54,12 +54,12 @@ echo "USER_PASS:$USER_PASS"
 echo "DATALAYER_ROUTE:$DATALAYER_ROUTE"
 
 
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-echo "   🧻 Empty Cassandra tables"
-echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE aiops.alerts;\""
-echo "  "
-echo "  "
+# echo "   ------------------------------------------------------------------------------------------------------------------------------"
+# echo "   🧻 Empty Cassandra tables"
+# echo "   ------------------------------------------------------------------------------------------------------------------------------"
+#     oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE aiops.alerts;\""
+# echo "  "
+# echo "  "
 
 
 
@@ -70,7 +70,7 @@ echo "   -----------------------------------------------------------------------
 cp ./training-data/latest/events-rest/events-training-rest.json /tmp/events-training-rest.json
 export current_date=$(date --date='-1 day' +'%Y-%m-%d')
 sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
-
+head -n 3 /tmp/events-training-rest.json
 
 while IFS= read -r line
 do      
@@ -98,6 +98,7 @@ echo "   -----------------------------------------------------------------------
 cp ./training-data/latest/events-rest/events-training-rest.json /tmp/events-training-rest.json
 export current_date=$(date --date='-1 month' +'%Y-%m-%d')
 sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
+head -n 3 /tmp/events-training-rest.json
 
 
 while IFS= read -r line
@@ -126,6 +127,7 @@ echo "   -----------------------------------------------------------------------
 cp ./training-data/latest/events-rest/events-training-rest.json /tmp/events-training-rest.json
 export current_date=$(date --date='-2 month' +'%Y-%m-%d')
 sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
+head -n 3 /tmp/events-training-rest.json
 
 
 while IFS= read -r line
@@ -154,6 +156,7 @@ echo "   -----------------------------------------------------------------------
 cp ./training-data/latest/events-rest/events-training-rest.json /tmp/events-training-rest.json
 export current_date=$(date --date='-3 month' +'%Y-%m-%d')
 sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
+head -n 3 /tmp/events-training-rest.json
 
 
 while IFS= read -r line
@@ -183,6 +186,7 @@ echo "   -----------------------------------------------------------------------
 cp ./training-data/latest/events-rest/events-training-rest.json /tmp/events-training-rest.json
 export current_date=$(date --date='-4 month' +'%Y-%m-%d')
 sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
+head -n 3 /tmp/events-training-rest.json
 
 
 while IFS= read -r line
