@@ -96,7 +96,7 @@ echo "   -----------------------------------------------------------------------
 echo "   🚀 Update Training Data 1 Month ago"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 export current_date=$(date --date='-1 month' +'%Y-%m-%d')
-sed -i "s/2026-02-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
 
 
 while IFS= read -r line
@@ -123,7 +123,7 @@ echo "   -----------------------------------------------------------------------
 echo "   🚀 Update Training Data 2 Month ago"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 export current_date=$(date --date='-2 month' +'%Y-%m-%d')
-sed -i "s/2026-03-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
 
 
 while IFS= read -r line
@@ -150,7 +150,7 @@ echo "   -----------------------------------------------------------------------
 echo "   🚀 Update Training Data 3 Month ago"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 export current_date=$(date --date='-3 month' +'%Y-%m-%d')
-sed -i "s/2026-04-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
 
 
 while IFS= read -r line
@@ -178,7 +178,7 @@ echo "   -----------------------------------------------------------------------
 echo "   🚀 Update Training Data 4 Month ago"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 export current_date=$(date --date='-4 month' +'%Y-%m-%d')
-sed -i "s/2026-04-01/$current_date/g" ./training-data/$VERSION/$INDEX_TYPE/*.csv
+sed -i "s/2026-01-01/$current_date/g" /tmp/events-training-rest.json
 
 
 while IFS= read -r line
