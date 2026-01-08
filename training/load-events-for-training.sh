@@ -135,7 +135,7 @@ echo "   -----------------------------------------------------------------------
 echo "      👉 Version    : $VERSION"
 echo "  "
 echo "  "
-    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/home/ibm/
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/cassandra/
 echo "  "
 echo "  "
 
@@ -162,7 +162,7 @@ echo "   -----------------------------------------------------------------------
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/home/ibm/aiops.alerts.csv' with header=true AND MAXBATCHSIZE=100 AND CHUNKSIZE=1;\""
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy aiops.alerts from '/tmp/cassandra/aiops.alerts.csv' with header=true AND MAXBATCHSIZE=100 AND CHUNKSIZE=1;\""
 echo "  "
 echo "  "
 
