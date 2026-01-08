@@ -106,7 +106,7 @@ echo "   -----------------------------------------------------------------------
 echo "      👉 Version    : $VERSION"
 echo "  "
 echo "  "
-    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/home/ibm/
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/cassandra/
 echo "  "
 echo "  "
 
@@ -134,9 +134,12 @@ echo "   -----------------------------------------------------------------------
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/home/ibm/tararam.md_metric_resource.csv' with header=true;\""
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_resource from '/home/ibm/tararam.md_resource.csv' with header=true;\""
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_group from '/home/ibm/tararam.md_group.csv' with header=true;\""
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/cassandra/
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/tmp/cassandra/tararam.md_metric_resource.csv' with header=true;\""
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/cassandra/
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_resource from '/tmp/cassandra/tararam.md_resource.csv' with header=true;\""
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/cassandra/
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_group from '/tmp/cassandra/tararam.md_group.csv' with header=true;\""
 echo "  "
 echo "  "
 
@@ -146,7 +149,7 @@ do
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     echo "   🚚 Load data values dump into Cassandra table tararam.dt_metric_value from $actFile"
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/home/ibm/"$actFile"' with header=true;\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/tmp/cassandra/"$actFile"' with header=true;\""
     echo "  "
     echo "  "
 
