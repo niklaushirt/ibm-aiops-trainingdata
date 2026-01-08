@@ -135,7 +135,7 @@ echo "   -----------------------------------------------------------------------
 echo "      👉 Version    : $VERSION"
 echo "  "
 echo "  "
-    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/home/ibm
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/home/ibm/
 echo "  "
 echo "  "
 

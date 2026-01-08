@@ -104,7 +104,7 @@ echo "   -----------------------------------------------------------------------
 echo "      👉 Version    : $VERSION"
 echo "  "
 echo "  "
-    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/tmp/
+    oc rsync -n $AIOPS_NAMESPACE ./training-data/$VERSION/$INDEX_TYPE/ aiops-topology-cassandra-0:/home/ibm/
 echo "  "
 echo "  "
 
@@ -113,7 +113,7 @@ echo "  "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🚚 Load data structure dump into Cassandra table tararam.md_metric_resource"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/tmp/tararam.md_metric_resource.csv' with header=true;\""
+    oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.md_metric_resource from '/home/ibm/tararam.md_metric_resource.csv' with header=true;\""
 echo "  "
 echo "  "
 
@@ -123,7 +123,7 @@ do
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     echo "   🚚 Load data values dump into Cassandra table tararam.dt_metric_value from $actFile"
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/tmp/"$actFile"' with header=true;\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"copy tararam.dt_metric_value from '/home/ibm/"$actFile"' with header=true;\""
     echo "  "
     echo "  "
 
