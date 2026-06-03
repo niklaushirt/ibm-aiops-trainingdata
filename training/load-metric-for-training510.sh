@@ -49,7 +49,7 @@ fi
 if [[  $AIOPS_NAMESPACE == "" ]]; then
     # Get Namespace from Cluster 
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-    echo "   🔬 Getting Installation Namespace"
+    echo "   🔬  Getting Installation Namespace"
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     export AIOPS_NAMESPACE=$(oc get po -A|grep aimanager-operator |awk '{print$1}')
     echo "       ✅ OK - AI Manager:               $AIOPS_NAMESPACE"
@@ -76,7 +76,7 @@ then
       echo "           ❌ Aborting..."	
       exit 1	
 else	
-      echo "     ✅ Dump Files:                 OK"	
+      echo "       ✅ Dump Files:                 OK"	
 fi	
 echo "     "	
 
@@ -109,7 +109,7 @@ echo "       "
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 echo "   🗄️  Indexes to be loaded from ./training-data/$VERSION/$INDEX_TYPE/"	
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
-ls -1 ./training-data/$VERSION/$INDEX_TYPE/reordered_csv | grep "dt_metric_value"	 | sed 's/^/          /'
+ls -1 ./training-data/$VERSION/$INDEX_TYPE/reordered_csv | grep "metric_value"	 | sed 's/^/          /'
 echo "       "	
 echo "       "	
 
@@ -144,7 +144,7 @@ echo "   -----------------------------------------------------------------------
 echo "   🔎 Check Postgres tables"
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
 oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c 'SELECT count(*) FROM aiops_ir_ai.metric_values;'"
-    oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c 'SELECT count(*) FROM aiops_ir_ai.metric_metadata;'"
+oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c 'SELECT count(*) FROM aiops_ir_ai.metric_metadata;'"
 
 #oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai"
 
@@ -157,7 +157,7 @@ echo "  "
 echo "  "
 
 
-for actFile in $(ls -1 ./training-data/$VERSION/$INDEX_TYPE/reordered_csv | grep "dt_metric_value");
+for actFile in $(ls -1 ./training-data/$VERSION/$INDEX_TYPE/reordered_csv | grep "metric_value");
 do
     echo "   ------------------------------------------------------------------------------------------------------------------------------"
     echo "   🚚 Load data values dump into Postgres table aiops_ir_ai.metric_values from $actFile"
