@@ -74,6 +74,7 @@ fi
 
 for csv_file in "${csv_files[@]}"; do
   output_file="$output_dir/$(basename "$csv_file")"
+  temp_file="${output_file}.tmp.$$"
 
   awk -F',' -v today="$today" -v cutoff="$cutoff" '
     BEGIN { OFS = "," }
@@ -90,10 +91,13 @@ for csv_file in "${csv_files[@]}"; do
       return 31
     }
     function valid_date(date_value, parts, year, month, day) {
-      if (date_value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) {
+      if (length(date_value) != 10 || substr(date_value, 5, 1) != "-" || substr(date_value, 8, 1) != "-") {
         return 0
       }
       split(date_value, parts, "-")
+      if (parts[1] !~ /^[0-9][0-9][0-9][0-9]$/ || parts[2] !~ /^[0-9][0-9]$/ || parts[3] !~ /^[0-9][0-9]$/) {
+        return 0
+      }
       year = parts[1] + 0
       month = parts[2] + 0
       day = parts[3] + 0
@@ -108,7 +112,13 @@ for csv_file in "${csv_files[@]}"; do
         print $1, $2, $3, $8, $7, $6, $5, $4
       }
     }
-  ' "$csv_file" > "$output_file"
+  ' "$csv_file" > "$temp_file"
+
+  if [ -s "$temp_file" ]; then
+    mv "$temp_file" "$output_file"
+  else
+    rm -f "$temp_file" "$output_file"
+  fi
 done
 
 echo "Reordered ${#csv_files[@]} CSV file(s) into: $output_dir"
