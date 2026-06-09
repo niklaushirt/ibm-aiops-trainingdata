@@ -127,17 +127,25 @@ echo "  "
 echo "  "
 echo "  "
 
-# if [ "$INDEX_OVERWRITE" = true ] ; then
-#     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-#     echo "   ❗🧻 Empty Postgres tables"
-#     echo "   ------------------------------------------------------------------------------------------------------------------------------"
-#         oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.dt_metric_value;\""
-#         oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_metric_resource;\""
-#         oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_resource;\""
-#         oc exec -ti -n $AIOPS_NAMESPACE aiops-topology-cassandra-0 -- bash -c "/opt/ibm/cassandra/bin/cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e \"TRUNCATE  tararam.md_group;\""
-#     echo "  "
-#     echo "  "
-# fi
+if [ "$INDEX_OVERWRITE" = true ] ; then
+    echo "   ------------------------------------------------------------------------------------------------------------------------------"
+    echo "   ❗🧻 Empty Application Metrics from Postgres tables"
+    echo "   ------------------------------------------------------------------------------------------------------------------------------"
+        
+        
+        # psql -U postgres -d aiops_ir_ai
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c \"SELECT count(*) FROM aiops_ir_ai.metric_metadata WHERE group_name NOT IN ('logMetrics','alertGroup');\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c \"SELECT count(*) FROM aiops_ir_ai.metric_values WHERE mr_id IN ('7edec544-92e7-3a88-9e69-8fda5b1c49bb','d2643b1c-bd64-3e60-88df-d9c2d969decf','46b764cb-9ad6-326d-971b-c15b7423e49a','32c45c28-d274-345a-9bb0-7a162565bc43','7a82b275-5108-3665-b4bc-c89df485ef50','ca73ee22-e57b-38d4-9a40-dad86082bbab','de4ef4bf-946c-3b27-9863-73c7a7af32d5','e4c36a3d-7ca3-3003-b4b9-4abe4a63ed9e','48fddfac-009b-3cfe-a8d5-9ea76c0e3c4f','a921a433-2878-32b5-a141-769c9717c4bc','6e0a7aed-013f-34a7-afa2-dbb66cbf1304','caa67515-da0d-33ae-8e56-c03fb35da99b','0acf99e5-758b-3d3f-8d8d-6c159322009d','bdd13495-ed91-316f-8ad2-6575ab59aae5','97abafe7-94d3-3aea-b5b7-89c88d069166','9ee771c4-6124-3316-ac09-a91e39b64397','56afbf4d-4164-3e08-966c-427387e72789','554d3eb2-c830-3112-a14e-0a54912365d6','c5b0f2a7-0005-3f53-9eaa-5495d843b454','3e03e1ba-dbad-3278-a3e6-39797cf0c843','3fc73093-c20d-3115-8b7c-962f82906e20','0fc7bc0d-7c8c-3e70-8091-43d3b2c5d64a','2b109fd5-8184-3866-918d-970007b57835','c73fb9e0-bdf4-3e65-b4bb-45926325c269','8755be37-a078-3f8d-9d18-5b9a07c34748','6f837c30-6dbe-34ca-87b6-1f2abf7eb402','820087ad-0a67-3ba5-abce-c2429e7ebece');\""
+
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c \"DELETE FROM aiops_ir_ai.metric_metadata WHERE group_name NOT IN ('logMetrics','alertGroup');\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c \"SELECT count(*) FROM aiops_ir_ai.metric_metadata WHERE group_name NOT IN ('logMetrics','alertGroup');\""
+
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c \"DELETE FROM aiops_ir_ai.metric_values WHERE mr_id IN ('7edec544-92e7-3a88-9e69-8fda5b1c49bb','d2643b1c-bd64-3e60-88df-d9c2d969decf','46b764cb-9ad6-326d-971b-c15b7423e49a','32c45c28-d274-345a-9bb0-7a162565bc43','7a82b275-5108-3665-b4bc-c89df485ef50','ca73ee22-e57b-38d4-9a40-dad86082bbab','de4ef4bf-946c-3b27-9863-73c7a7af32d5','e4c36a3d-7ca3-3003-b4b9-4abe4a63ed9e','48fddfac-009b-3cfe-a8d5-9ea76c0e3c4f','a921a433-2878-32b5-a141-769c9717c4bc','6e0a7aed-013f-34a7-afa2-dbb66cbf1304','caa67515-da0d-33ae-8e56-c03fb35da99b','0acf99e5-758b-3d3f-8d8d-6c159322009d','bdd13495-ed91-316f-8ad2-6575ab59aae5','97abafe7-94d3-3aea-b5b7-89c88d069166','9ee771c4-6124-3316-ac09-a91e39b64397','56afbf4d-4164-3e08-966c-427387e72789','554d3eb2-c830-3112-a14e-0a54912365d6','c5b0f2a7-0005-3f53-9eaa-5495d843b454','3e03e1ba-dbad-3278-a3e6-39797cf0c843','3fc73093-c20d-3115-8b7c-962f82906e20','0fc7bc0d-7c8c-3e70-8091-43d3b2c5d64a','2b109fd5-8184-3866-918d-970007b57835','c73fb9e0-bdf4-3e65-b4bb-45926325c269','8755be37-a078-3f8d-9d18-5b9a07c34748','6f837c30-6dbe-34ca-87b6-1f2abf7eb402','820087ad-0a67-3ba5-abce-c2429e7ebece');\""
+        oc exec -ti -n $AIOPS_NAMESPACE aiops-ir-analytics-postgres-1 -- bash -c "psql -U postgres -d aiops_ir_ai -c \"SELECT count(*) FROM aiops_ir_ai.metric_values WHERE mr_id IN ('7edec544-92e7-3a88-9e69-8fda5b1c49bb','d2643b1c-bd64-3e60-88df-d9c2d969decf','46b764cb-9ad6-326d-971b-c15b7423e49a','32c45c28-d274-345a-9bb0-7a162565bc43','7a82b275-5108-3665-b4bc-c89df485ef50','ca73ee22-e57b-38d4-9a40-dad86082bbab','de4ef4bf-946c-3b27-9863-73c7a7af32d5','e4c36a3d-7ca3-3003-b4b9-4abe4a63ed9e','48fddfac-009b-3cfe-a8d5-9ea76c0e3c4f','a921a433-2878-32b5-a141-769c9717c4bc','6e0a7aed-013f-34a7-afa2-dbb66cbf1304','caa67515-da0d-33ae-8e56-c03fb35da99b','0acf99e5-758b-3d3f-8d8d-6c159322009d','bdd13495-ed91-316f-8ad2-6575ab59aae5','97abafe7-94d3-3aea-b5b7-89c88d069166','9ee771c4-6124-3316-ac09-a91e39b64397','56afbf4d-4164-3e08-966c-427387e72789','554d3eb2-c830-3112-a14e-0a54912365d6','c5b0f2a7-0005-3f53-9eaa-5495d843b454','3e03e1ba-dbad-3278-a3e6-39797cf0c843','3fc73093-c20d-3115-8b7c-962f82906e20','0fc7bc0d-7c8c-3e70-8091-43d3b2c5d64a','2b109fd5-8184-3866-918d-970007b57835','c73fb9e0-bdf4-3e65-b4bb-45926325c269','8755be37-a078-3f8d-9d18-5b9a07c34748','6f837c30-6dbe-34ca-87b6-1f2abf7eb402','820087ad-0a67-3ba5-abce-c2429e7ebece');\""
+
+    echo "  "
+    echo "  "
+fi
 
 
 echo "   ------------------------------------------------------------------------------------------------------------------------------"
